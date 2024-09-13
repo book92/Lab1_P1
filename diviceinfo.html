@@ -120,12 +120,21 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const deviceName = urlParams.get('deviceName');
-        const deviceType = urlParams.get('deviceType');
-        const deviceSpecs = JSON.parse(decodeURIComponent(urlParams.get('deviceSpecs')));
-        const deviceNotes = urlParams.get('deviceNotes');
+        // Function to get URL parameter
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
 
+        // Get device information from URL
+        const deviceName = getUrlParameter('deviceName');
+        const deviceType = getUrlParameter('deviceType');
+        const deviceSpecs = JSON.parse(getUrlParameter('deviceSpecs'));
+        const deviceNotes = getUrlParameter('deviceNotes');
+
+        // Display device information
         document.getElementById('deviceName').textContent = deviceName;
         document.getElementById('deviceType').textContent = deviceType;
         document.getElementById('deviceSpecs').textContent = JSON.stringify(deviceSpecs, null, 2);
