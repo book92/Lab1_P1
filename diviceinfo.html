@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Thông Tin Thiết Bị</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      margin: 20px;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .info-box {
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+    p {
+      font-size: 18px;
+      margin: 0;
+    }
+    .button {
+      background-color: #21005d;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    #errorDescription {
+      width: 100%;
+      height: 100px;
+      margin-top: 10px;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Thông Tin Thiết Bị</h1>
+  <div class="info-box">
+    <p id="deviceName"></p>
+  </div>
+  <div class="info-box">
+    <p id="deviceRoom"></p>
+  </div>
+  <div class="info-box">
+    <p id="deviceSpecs"></p>
+  </div>
+  <textarea id="errorDescription" placeholder="Mô tả lỗi"></textarea>
+  <button id="reportErrorBtn" class="button">Báo lỗi</button>
+
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      // Add your Firebase configuration here
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const deviceName = urlParams.get('deviceName');
+    const deviceRoom = urlParams.get('deviceRoom');
+    const deviceSpecs = urlParams.get('deviceSpecs');
+
+    document.getElementById('deviceName').textContent = `Tên Thiết Bị: ${deviceName}`;
+    document.getElementById('deviceRoom').textContent = `Phòng Thiết Bị: ${deviceRoom}`;
+    document.getElementById('deviceSpecs').textContent = `Thông Số Thiết Bị: ${deviceSpecs}`;
+
+    document.getElementById('reportErrorBtn').addEventListener('click', function() {
+      const errorDescription = document.getElementById('errorDescription').value;
+      if (!errorDescription) {
+        alert('Vui lòng nhập mô tả lỗi');
+        return;
+      }
+
+      const today = new Date();
+      const reportday = today.toISOString().split('T')[0];
+      const userreport = "Web User"; // You might want to implement user authentication
+
+      db.collection("ERROR").add({
+        deviceName: deviceName,
+        description: errorDescription,
+        reportday: reportday,
+        userreport: userreport,
+        state: "Chưa sửa",
+        fixday: "",
+      })
+      .then((docRef) => {
+        alert("Lỗi đã được báo cáo thành công!");
+        document.getElementById('errorDescription').value = '';
+      })
+      .catch((error) => {
+        console.error("Error adding document: ", error);
+        alert("Có lỗi xảy ra khi báo cáo. Vui lòng thử lại.");
+      });
+    });
+  </script>
+</body>
+</html>
