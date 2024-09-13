@@ -54,7 +54,16 @@
     <p id="deviceRoom"></p>
   </div>
   <div class="info-box">
+    <p id="deviceType"></p>
+  </div>
+  <div class="info-box">
+    <p id="deviceUser"></p>
+  </div>
+  <div class="info-box">
     <p id="deviceSpecs"></p>
+  </div>
+  <div class="info-box">
+    <p id="deviceNotes"></p>
   </div>
   <textarea id="errorDescription" placeholder="Mô tả lỗi"></textarea>
   <button id="reportErrorBtn" class="button">Báo lỗi</button>
@@ -72,11 +81,17 @@
     const urlParams = new URLSearchParams(window.location.search);
     const deviceName = urlParams.get('deviceName');
     const deviceRoom = urlParams.get('deviceRoom');
-    const deviceSpecs = urlParams.get('deviceSpecs');
+    const deviceType = urlParams.get('deviceType');
+    const deviceUser = urlParams.get('deviceUser');
+    const deviceSpecs = JSON.parse(decodeURIComponent(urlParams.get('deviceSpecs')));
+    const deviceNotes = urlParams.get('deviceNotes');
 
     document.getElementById('deviceName').textContent = `Tên Thiết Bị: ${deviceName}`;
     document.getElementById('deviceRoom').textContent = `Phòng Thiết Bị: ${deviceRoom}`;
-    document.getElementById('deviceSpecs').textContent = `Thông Số Thiết Bị: ${deviceSpecs}`;
+    document.getElementById('deviceType').textContent = `Loại Thiết Bị: ${deviceType}`;
+    document.getElementById('deviceUser').textContent = `Người Dùng: ${deviceUser}`;
+    document.getElementById('deviceSpecs').textContent = `Thông Số Kỹ Thuật: ${JSON.stringify(deviceSpecs)}`;
+    document.getElementById('deviceNotes').textContent = `Ghi Chú: ${deviceNotes}`;
 
     document.getElementById('reportErrorBtn').addEventListener('click', function() {
       const errorDescription = document.getElementById('errorDescription').value;
@@ -96,6 +111,11 @@
         userreport: userreport,
         state: "Chưa sửa",
         fixday: "",
+        deviceRoom: deviceRoom,
+        deviceType: deviceType,
+        deviceUser: deviceUser,
+        deviceSpecs: deviceSpecs,
+        deviceNotes: deviceNotes
       })
       .then((docRef) => {
         alert("Lỗi đã được báo cáo thành công!");
