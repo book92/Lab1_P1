@@ -73,9 +73,10 @@
         <h1>Thông Tin Thiết Bị</h1>
         
         <div id="debug-info" style="background-color: #ffeeee; padding: 10px; margin-bottom: 20px;">
-            <h3>Debug Information:</h3>
-            <pre id="debug-url"></pre>
-            <pre id="debug-data"></pre>
+            <p><strong>Full URL:</strong> <span id="full-url"></span></p>
+            <p><strong>Data Parameter:</strong> <span id="data-param"></span></p>
+            <p><strong>Parsed Data:</strong></p>
+            <pre id="parsed-data"></pre>
         </div>
         
         <div class="info-section">
@@ -126,7 +127,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Function to get URL parameter
+        // Hàm để lấy tham số từ URL
         function getUrlParameter(name) {
             name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
             var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
@@ -134,32 +135,26 @@
             return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
         }
 
-        // Debug: Log full URL
-        console.log("Full URL:", window.location.href);
-        document.getElementById('debug-url').textContent = window.location.href;
-
-        // Get device information from URL
-        const deviceDataString = getUrlParameter('data');
+        // Lấy dữ liệu từ URL
+        const dataParam = getUrlParameter('data');
         let deviceData;
+
         try {
-            deviceData = JSON.parse(deviceDataString);
+            deviceData = JSON.parse(dataParam);
             console.log("Parsed device data:", deviceData);
-            document.getElementById('debug-data').textContent = JSON.stringify(deviceData, null, 2);
+
+            // Hiển thị thông tin thiết bị
+            document.getElementById('deviceName').textContent = deviceData.name || 'Không có thông tin';
+            document.getElementById('deviceType').textContent = deviceData.type || 'Không có thông tin';
+            document.getElementById('deviceSpecs').textContent = JSON.stringify(deviceData.specs, null, 2) || 'Không có thông tin';
+            document.getElementById('deviceNotes').textContent = deviceData.notes || 'Không có thông tin';
         } catch (error) {
             console.error("Error parsing device data:", error);
-            document.getElementById('debug-data').textContent = "Error parsing data: " + error.message;
-        }
-
-        if (deviceData) {
-            document.getElementById('deviceName').textContent = deviceData.name || 'Not provided';
-            document.getElementById('deviceType').textContent = deviceData.type || 'Not provided';
-            document.getElementById('deviceSpecs').textContent = JSON.stringify(deviceData.specs, null, 2) || 'Not provided';
-            document.getElementById('deviceNotes').textContent = deviceData.notes || 'Not provided';
-        } else {
-            document.getElementById('deviceName').textContent = 'Data not available';
-            document.getElementById('deviceType').textContent = 'Data not available';
-            document.getElementById('deviceSpecs').textContent = 'Data not available';
-            document.getElementById('deviceNotes').textContent = 'Data not available';
+            // Hiển thị thông báo lỗi nếu không parse được dữ liệu
+            document.getElementById('deviceName').textContent = 'Lỗi khi đọc dữ liệu';
+            document.getElementById('deviceType').textContent = 'Lỗi khi đọc dữ liệu';
+            document.getElementById('deviceSpecs').textContent = 'Lỗi khi đọc dữ liệu';
+            document.getElementById('deviceNotes').textContent = 'Lỗi khi đọc dữ liệu';
         }
 
         document.getElementById('reportErrorBtn').addEventListener('click', function() {
