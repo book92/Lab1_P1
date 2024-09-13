@@ -72,6 +72,12 @@
     <div class="container">
         <h1>Thông Tin Thiết Bị</h1>
         
+        <div id="debug-info" style="background-color: #ffeeee; padding: 10px; margin-bottom: 20px;">
+            <h3>Debug Information:</h3>
+            <pre id="debug-url"></pre>
+            <pre id="debug-data"></pre>
+        </div>
+        
         <div class="info-section">
             <div class="info-label">Tên thiết bị:</div>
             <div id="deviceName" class="info-value"></div>
@@ -128,17 +134,33 @@
             return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
         }
 
-        // Get device information from URL
-        const deviceName = getUrlParameter('deviceName');
-        const deviceType = getUrlParameter('deviceType');
-        const deviceSpecs = JSON.parse(getUrlParameter('deviceSpecs'));
-        const deviceNotes = getUrlParameter('deviceNotes');
+        // Debug: Log full URL
+        console.log("Full URL:", window.location.href);
+        document.getElementById('debug-url').textContent = window.location.href;
 
-        // Display device information
-        document.getElementById('deviceName').textContent = deviceName;
-        document.getElementById('deviceType').textContent = deviceType;
-        document.getElementById('deviceSpecs').textContent = JSON.stringify(deviceSpecs, null, 2);
-        document.getElementById('deviceNotes').textContent = deviceNotes;
+        // Get device information from URL
+        const deviceDataString = getUrlParameter('data');
+        let deviceData;
+        try {
+            deviceData = JSON.parse(deviceDataString);
+            console.log("Parsed device data:", deviceData);
+            document.getElementById('debug-data').textContent = JSON.stringify(deviceData, null, 2);
+        } catch (error) {
+            console.error("Error parsing device data:", error);
+            document.getElementById('debug-data').textContent = "Error parsing data: " + error.message;
+        }
+
+        if (deviceData) {
+            document.getElementById('deviceName').textContent = deviceData.name || 'Not provided';
+            document.getElementById('deviceType').textContent = deviceData.type || 'Not provided';
+            document.getElementById('deviceSpecs').textContent = JSON.stringify(deviceData.specs, null, 2) || 'Not provided';
+            document.getElementById('deviceNotes').textContent = deviceData.notes || 'Not provided';
+        } else {
+            document.getElementById('deviceName').textContent = 'Data not available';
+            document.getElementById('deviceType').textContent = 'Data not available';
+            document.getElementById('deviceSpecs').textContent = 'Data not available';
+            document.getElementById('deviceNotes').textContent = 'Data not available';
+        }
 
         document.getElementById('reportErrorBtn').addEventListener('click', function() {
             const errorDescription = document.getElementById('errorDescription').value;
@@ -154,16 +176,16 @@
             const reportday = today.toISOString().split('T')[0];
 
             db.collection("ERROR").add({
-                deviceName: deviceName,
+                deviceName: deviceData.name,
                 description: errorDescription,
                 reportday: reportday,
                 userreport: userName,
                 state: "Chưa sửa",
                 fixday: "",
                 deviceRoom: userRoom,
-                deviceType: deviceType,
-                specifications: deviceSpecs,
-                note: deviceNotes
+                deviceType: deviceData.type,
+                specifications: deviceData.specs,
+                note: deviceData.notes
             })
             .then((docRef) => {
                 alert("Lỗi đã được báo cáo thành công!");
