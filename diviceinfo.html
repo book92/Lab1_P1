@@ -85,6 +85,11 @@
         </div>
         
         <div class="info-section">
+            <div class="info-label">Người dùng:</div>
+            <div id="deviceUser" class="info-value"></div>
+        </div>
+        
+        <div class="info-section">
             <div class="info-label">Loại thiết bị:</div>
             <div id="deviceType" class="info-value"></div>
         </div>
@@ -100,8 +105,13 @@
         </div>
         
         <div class="info-section">
-            <div class="info-label">Người dùng:</div>
-            <input type="text" id="userName" class="input-field" placeholder="Nhập tên người dùng">
+            <div class="info-label">Phòng ban:</div>
+            <div id="departmentName" class="info-value"></div>
+        </div>
+        
+        <div class="info-section">
+            <div class="info-label">Người báo lỗi:</div>
+            <input type="text" id="userName" class="input-field" placeholder="Nhập tên người báo lỗi">
         </div>
         
         <div class="info-section">
@@ -120,7 +130,10 @@
     <script>
         // Firebase configuration
         const firebaseConfig = {
-            // Add your Firebase configuration here
+            apiKey: "AIzaSyApBWUABXIusWxrlvdBt9ttvTd0uSISTQY",
+            projectId: "device-management-43211",
+            storageBucket: "device-management-43211.appspot.com",
+            appId: "com.device_management",
         };
 
         // Initialize Firebase
@@ -145,16 +158,20 @@
 
             // Display device information
             document.getElementById('deviceName').textContent = deviceData.name || 'Không có thông tin';
+            document.getElementById('deviceUser').textContent = deviceData.user || 'Không có thông tin';
             document.getElementById('deviceType').textContent = deviceData.type || 'Không có thông tin';
             document.getElementById('deviceSpecs').textContent = JSON.stringify(deviceData.specs, null, 2) || 'Không có thông tin';
             document.getElementById('deviceNotes').textContent = deviceData.notes || 'Không có thông tin';
+            document.getElementById('departmentName').textContent = deviceData.department || 'Không có thông tin';
         } catch (error) {
             console.error("Error parsing device data:", error);
             // Display error message if data parsing fails
             document.getElementById('deviceName').textContent = 'Lỗi khi đọc dữ liệu';
+            document.getElementById('deviceUser').textContent = 'Lỗi khi đọc dữ liệu';
             document.getElementById('deviceType').textContent = 'Lỗi khi đọc dữ liệu';
             document.getElementById('deviceSpecs').textContent = 'Lỗi khi đọc dữ liệu';
             document.getElementById('deviceNotes').textContent = 'Lỗi khi đọc dữ liệu';
+            document.getElementById('departmentName').textContent = 'Lỗi khi đọc dữ liệu';
         }
 
         document.getElementById('reportErrorBtn').addEventListener('click', function() {
