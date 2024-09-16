@@ -115,11 +115,6 @@
         </div>
         
         <div class="info-section">
-            <div class="info-label">Phòng:</div>
-            <input type="text" id="userRoom" class="input-field" placeholder="Nhập tên phòng">
-        </div>
-        
-        <div class="info-section">
             <div class="info-label">Mô tả lỗi:</div>
             <textarea id="errorDescription" class="input-field" placeholder="Mô tả lỗi" rows="4"></textarea>
         </div>
@@ -148,6 +143,14 @@
             return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
         }
 
+        // Function to safely display device information
+        function displayDeviceInfo(id, value) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = value || 'Không có thông tin';
+            }
+        }
+
         // Get device information from URL
         const dataParam = getUrlParameter('data');
         let deviceData;
@@ -157,29 +160,31 @@
             console.log("Parsed device data:", deviceData);
 
             // Display device information
-            document.getElementById('deviceName').textContent = deviceData.name || 'Không có thông tin';
-            document.getElementById('deviceUser').textContent = deviceData.user || 'Không có thông tin';
-            document.getElementById('deviceType').textContent = deviceData.type || 'Không có thông tin';
-            document.getElementById('deviceSpecs').textContent = JSON.stringify(deviceData.specs, null, 2) || 'Không có thông tin';
-            document.getElementById('deviceNotes').textContent = deviceData.notes || 'Không có thông tin';
-            document.getElementById('departmentName').textContent = deviceData.department || 'Không có thông tin';
+            displayDeviceInfo('deviceName', deviceData.name);
+            displayDeviceInfo('deviceUser', deviceData.user);
+            displayDeviceInfo('deviceType', deviceData.type);
+            displayDeviceInfo('deviceNotes', deviceData.notes);
+            displayDeviceInfo('departmentName', deviceData.department);
+
+            // Handle device specifications
+            if (deviceData.specs && Object.keys(deviceData.specs).length > 0) {
+                document.getElementById('deviceSpecs').textContent = JSON.stringify(deviceData.specs, null, 2);
+            } else {
+                document.getElementById('deviceSpecs').textContent = 'Không có thông tin';
+            }
         } catch (error) {
             console.error("Error parsing device data:", error);
             // Display error message if data parsing fails
-            document.getElementById('deviceName').textContent = 'Lỗi khi đọc dữ liệu';
-            document.getElementById('deviceUser').textContent = 'Lỗi khi đọc dữ liệu';
-            document.getElementById('deviceType').textContent = 'Lỗi khi đọc dữ liệu';
-            document.getElementById('deviceSpecs').textContent = 'Lỗi khi đọc dữ liệu';
-            document.getElementById('deviceNotes').textContent = 'Lỗi khi đọc dữ liệu';
-            document.getElementById('departmentName').textContent = 'Lỗi khi đọc dữ liệu';
+            ['deviceName', 'deviceUser', 'deviceType', 'deviceSpecs', 'deviceNotes', 'departmentName'].forEach(id => {
+                displayDeviceInfo(id, 'Lỗi khi đọc dữ liệu');
+            });
         }
 
         document.getElementById('reportErrorBtn').addEventListener('click', function() {
             const errorDescription = document.getElementById('errorDescription').value;
-            const userRoom = document.getElementById('userRoom').value;
             const userName = document.getElementById('userName').value;
 
-            if (!errorDescription || !userRoom || !userName) {
+            if (!errorDescription || !userName) {
                 alert('Vui lòng nhập đầy đủ thông tin');
                 return;
             }
@@ -188,21 +193,20 @@
             const reportday = today.toISOString().split('T')[0];
 
             db.collection("ERROR").add({
-                deviceName: deviceData.name,
-                deviceType: deviceData.type,
-                specifications: deviceData.specs,
-                note: deviceData.notes,
+                deviceName: deviceData.name || 'Không có thông tin',
+                deviceType: deviceData.type || 'Không có thông tin',
+                specifications: deviceData.specs || {},
+                note: deviceData.notes || 'Không có thông tin',
                 description: errorDescription,
                 reportday: reportday,
                 userreport: userName,
-                deviceRoom: userRoom,
+                deviceRoom: deviceData.department || 'Không có thông tin',
                 state: "Chưa sửa",
                 fixday: ""
             })
             .then((docRef) => {
                 alert("Lỗi đã được báo cáo thành công!");
                 document.getElementById('errorDescription').value = '';
-                document.getElementById('userRoom').value = '';
                 document.getElementById('userName').value = '';
             })
             .catch((error) => {
