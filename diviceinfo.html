@@ -1,195 +1,52 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thông Tin Thiết Bị</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-        .container {
-            background-color: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #0000CD;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .info-section {
-            margin-bottom: 20px;
-        }
-        .info-label {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .info-value {
-            background-color: #f9f9f9;
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-        }
-        .input-field {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        textarea.input-field {
-            height: 100px;
-            resize: vertical;
-        }
-        .button {
-            background-color: #0000CD;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            width: 100%;
-        }
-        .button:hover {
-            background-color: #000080;
-        }
-    </style>
+  <title>Thông Tin Thiết Bị</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      margin: 20px;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .info-box {
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+    p {
+      font-size: 18px;
+      margin: 0;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Thông Tin Thiết Bị</h1>
-        
-        <div id="debug-info" style="background-color: #ffeeee; padding: 10px; margin-bottom: 20px;">
-            <pre id="parsed-data"></pre>
-        </div>
-        
-        <div class="info-section">
-            <div class="info-label">Tên thiết bị:</div>
-            <div id="deviceName" class="info-value"></div>
-        </div>
-        
-        <div class="info-section">
-            <div class="info-label">Loại thiết bị:</div>
-            <div id="deviceType" class="info-value"></div>
-        </div>
-        
-        <div class="info-section">
-            <div class="info-label">Thông số kỹ thuật:</div>
-            <div id="deviceSpecs" class="info-value"></div>
-        </div>
-        
-        <div class="info-section">
-            <div class="info-label">Ghi chú:</div>
-            <div id="deviceNotes" class="info-value"></div>
-        </div>
-        
-        <div class="info-section">
-            <div class="info-label">Phòng:</div>
-            <input type="text" id="userRoom" class="input-field" placeholder="Nhập phòng">
-        </div>
-        
-        <div class="info-section">
-            <div class="info-label">Người dùng:</div>
-            <input type="text" id="userName" class="input-field" placeholder="Nhập tên người dùng">
-        </div>
-        
-        <div class="info-section">
-            <div class="info-label">Mô tả lỗi:</div>
-            <textarea id="errorDescription" class="input-field" placeholder="Mô tả lỗi"></textarea>
-        </div>
-        
-        <button id="reportErrorBtn" class="button">Báo lỗi</button>
-    </div>
+  <h1>Thông Tin Thiết Bị</h1>
+  <div class="info-box">
+    <p id="deviceName"></p>
+  </div>
+  <div class="info-box">
+    <p id="deviceRoom"></p>
+  </div>
+  <div class="info-box">
+    <p id="deviceSpecs"></p>
+  </div>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const deviceName = urlParams.get('deviceName');
+    const deviceRoom = urlParams.get('deviceRoom');
+    const deviceSpecs = urlParams.get('deviceSpecs');
 
-    <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            // Add your Firebase configuration here
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        // Hàm để lấy tham số từ URL
-        function getUrlParameter(name) {
-            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-            var results = regex.exec(location.search);
-            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-        }
-
-        // Lấy dữ liệu từ URL
-        const dataParam = getUrlParameter('data');
-        let deviceData;
-
-        try {
-            deviceData = JSON.parse(dataParam);
-            console.log("Parsed device data:", deviceData);
-
-            // Hiển thị thông tin thiết bị
-            document.getElementById('deviceName').textContent = deviceData.name || 'Không có thông tin';
-            document.getElementById('deviceType').textContent = deviceData.type || 'Không có thông tin';
-            document.getElementById('deviceSpecs').textContent = JSON.stringify(deviceData.specs, null, 2) || 'Không có thông tin';
-            document.getElementById('deviceNotes').textContent = deviceData.notes || 'Không có thông tin';
-        } catch (error) {
-            console.error("Error parsing device data:", error);
-            // Hiển thị thông báo lỗi nếu không parse được dữ liệu
-            document.getElementById('deviceName').textContent = 'Lỗi khi đọc dữ liệu';
-            document.getElementById('deviceType').textContent = 'Lỗi khi đọc dữ liệu';
-            document.getElementById('deviceSpecs').textContent = 'Lỗi khi đọc dữ liệu';
-            document.getElementById('deviceNotes').textContent = 'Lỗi khi đọc dữ liệu';
-        }
-
-        document.getElementById('reportErrorBtn').addEventListener('click', function() {
-            const errorDescription = document.getElementById('errorDescription').value;
-            const userRoom = document.getElementById('userRoom').value;
-            const userName = document.getElementById('userName').value;
-
-            if (!errorDescription || !userRoom || !userName) {
-                alert('Vui lòng nhập đầy đủ thông tin');
-                return;
-            }
-
-            const today = new Date();
-            const reportday = today.toISOString().split('T')[0];
-
-            db.collection("ERROR").add({
-                deviceName: deviceData.name,
-                description: errorDescription,
-                reportday: reportday,
-                userreport: userName,
-                state: "Chưa sửa",
-                fixday: "",
-                deviceRoom: userRoom,
-                deviceType: deviceData.type,
-                specifications: deviceData.specs,
-                note: deviceData.notes
-            })
-            .then((docRef) => {
-                alert("Lỗi đã được báo cáo thành công!");
-                document.getElementById('errorDescription').value = '';
-                document.getElementById('userRoom').value = '';
-                document.getElementById('userName').value = '';
-            })
-            .catch((error) => {
-                console.error("Error adding document: ", error);
-                alert("Có lỗi xảy ra khi báo cáo. Vui lòng thử lại.");
-            });
-        });
-    </script>
+    document.getElementById('deviceName').textContent = `Tên Thiết Bị: ${deviceName}`;
+    document.getElementById('deviceRoom').textContent = `Phòng Thiết Bị: ${deviceRoom}`;
+    document.getElementById('deviceSpecs').textContent = `Thông Số Thiết Bị: ${deviceSpecs}`;
+  </script>
 </body>
 </html>
