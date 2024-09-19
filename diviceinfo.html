@@ -195,7 +195,7 @@
             db.collection("ERROR").add({
                 deviceName: deviceData.name || 'Không có thông tin',
                 deviceType: deviceData.type || 'Không có thông tin',
-                specifications: deviceData.specs || {},
+                specifications: deviceData.specs || 'Không có thông tin',
                 note: deviceData.notes || 'Không có thông tin',
                 description: errorDescription,
                 reportday: reportday,
