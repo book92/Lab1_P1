@@ -1,86 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thông tin thiết bị</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-        }
-        .info-item {
-            margin-bottom: 10px;
-        }
-        .info-label {
-            font-weight: bold;
-            color: #555;
-        }
-        .spec-item {
-            margin-left: 20px;
-            margin-bottom: 5px;
-        }
-    </style>
+    <!-- Giữ nguyên phần head -->
 </head>
 <body>
-    <div class="container">
-        <h1>Thông tin thiết bị</h1>
-        <div id="deviceInfo"></div>
-    </div>
+    <!-- Giữ nguyên phần body HTML -->
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const encodedData = urlParams.get('data');
-            
-            if (encodedData) {
-                const decodedData = JSON.parse(decodeURIComponent(encodedData));
-                const deviceInfoElement = document.getElementById('deviceInfo');
-                
-                let html = '';
-                html += `<div class="info-item"><span class="info-label">Tên thiết bị:</span> ${decodedData.name || 'Không có thông tin'}</div>`;
-                html += `<div class="info-item"><span class="info-label">Loại thiết bị:</span> ${decodedData.type || 'Không có thông tin'}</div>`;
-                html += `<div class="info-item"><span class="info-label">Phòng:</span> ${decodedData.department || 'Không có thông tin'}</div>`;
-                
-                // Hiển thị cả tên và email của người dùng
-                if (decodedData.user && decodedData.userEmail) {
-                    html += `<div class="info-item"><span class="info-label">Người dùng:</span> ${decodedData.user} (${decodedData.userEmail})</div>`;
-                } else if (decodedData.user) {
-                    html += `<div class="info-item"><span class="info-label">Người dùng:</span> ${decodedData.user}</div>`;
-                } else if (decodedData.userEmail) {
-                    html += `<div class="info-item"><span class="info-label">Người dùng:</span> ${decodedData.userEmail}</div>`;
-                } else {
-                    html += `<div class="info-item"><span class="info-label">Người dùng:</span> Không có thông tin</div>`;
-                }
-                
-                html += `<div class="info-item"><span class="info-label">Thông số kỹ thuật:</span></div>`;
-                if (decodedData.specs && Object.keys(decodedData.specs).length > 0) {
-                    for (const [key, value] of Object.entries(decodedData.specs)) {
-                        html += `<div class="spec-item">- ${key}: ${value}</div>`;
-                    }
-                } else {
-                    html += `<div class="spec-item">Không có thông tin</div>`;
-                }
-                
-                html += `<div class="info-item"><span class="info-label">Ghi chú:</span> ${decodedData.notes || 'Không có thông tin'}</div>`;
-                
-                deviceInfoElement.innerHTML = html;
+        // Giữ nguyên phần cấu hình Firebase và các hàm hỗ trợ
+
+        // Thay đổi hàm formatSpecs
+        function formatSpecs(specs) {
+            return Object.entries(specs)
+                .map(([key, value]) => `${key}: ${value}`)
+                .join('<br>');
+        }
+
+        // Thay đổi phần xử lý và hiển thị dữ liệu thiết bị
+        try {
+            deviceData = JSON.parse(dataParam);
+            console.log("Parsed device data:", deviceData);
+
+            // Hiển thị thông tin thiết bị
+            displayDeviceInfo('deviceName', deviceData.name);
+            // Hiển thị cả tên và email người dùng
+            displayDeviceInfo('deviceUser', `${deviceData.user || ''} ${deviceData.userEmail ? `(${deviceData.userEmail})` : ''}`);
+            displayDeviceInfo('deviceType', deviceData.type);
+            displayDeviceInfo('deviceNotes', deviceData.notes);
+            displayDeviceInfo('departmentName', deviceData.department);
+
+            // Xử lý thông số kỹ thuật
+            if (deviceData.specs && Object.keys(deviceData.specs).length > 0) {
+                document.getElementById('deviceSpecs').innerHTML = formatSpecs(deviceData.specs);
             } else {
-                document.body.innerHTML = '<p>Không có dữ liệu thiết bị được cung cấp.</p>';
+                document.getElementById('deviceSpecs').textContent = 'Không có thông tin';
             }
-        });
+        } catch (error) {
+            console.error("Error parsing device data:", error);
+            // Hiển thị thông báo lỗi nếu việc phân tích dữ liệu thất bại
+            ['deviceName', 'deviceUser', 'deviceType', 'deviceSpecs', 'deviceNotes', 'departmentName'].forEach(id => {
+                displayDeviceInfo(id, 'Lỗi khi đọc dữ liệu');
+            });
+        }
+
+        // Giữ nguyên phần xử lý sự kiện báo lỗi
+
     </script>
 </body>
 </html>
