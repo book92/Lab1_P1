@@ -147,7 +147,7 @@
         function displayDeviceInfo(id, value) {
             const element = document.getElementById(id);
             if (element) {
-                element.textContent = value || 'Không có thông tin';
+                element.innerHTML = value || 'Không có thông tin';
             }
         }
 
@@ -163,22 +163,31 @@
         let deviceData;
 
         try {
-            deviceData = JSON.parse(dataParam);
+            deviceData = JSON.parse(decodeURIComponent(dataParam));
             console.log("Parsed device data:", deviceData);
 
             // Display device information
             displayDeviceInfo('deviceName', deviceData.name);
-            // Display both user name and email
-            displayDeviceInfo('deviceUser', `${deviceData.user || ''} ${deviceData.userEmail ? `(${deviceData.userEmail})` : ''}`);
+            
+            // Hiển thị cả tên và email người dùng
+            let userInfo = '';
+            if (deviceData.user) {
+                userInfo += deviceData.user;
+            }
+            if (deviceData.userEmail) {
+                userInfo += userInfo ? ` (${deviceData.userEmail})` : deviceData.userEmail;
+            }
+            displayDeviceInfo('deviceUser', userInfo || 'Không có thông tin');
+
             displayDeviceInfo('deviceType', deviceData.type);
             displayDeviceInfo('deviceNotes', deviceData.notes);
             displayDeviceInfo('departmentName', deviceData.department);
 
             // Handle device specifications
             if (deviceData.specs && Object.keys(deviceData.specs).length > 0) {
-                document.getElementById('deviceSpecs').innerHTML = formatSpecs(deviceData.specs);
+                displayDeviceInfo('deviceSpecs', formatSpecs(deviceData.specs));
             } else {
-                document.getElementById('deviceSpecs').textContent = 'Không có thông tin';
+                displayDeviceInfo('deviceSpecs', 'Không có thông tin');
             }
         } catch (error) {
             console.error("Error parsing device data:", error);
